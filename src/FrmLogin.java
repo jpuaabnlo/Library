@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+package evaluacionfinal;
 
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -12,13 +12,49 @@ import javax.swing.JOptionPane;
  * @author charl
  */
 public class FrmLogin extends javax.swing.JFrame {
-
+    private ArrayList<Usuario> usuarios;
+    
     /**
      * Creates new form FrmLogin
      */
     public FrmLogin() {
-        initComponents();
-        
+        initComponents(); 
+        usuarios = new ArrayList<>(); 
+        cargarUsuarios(); 
+        verificarUsuarioInicial();
+    }
+    private void verificarUsuarioInicial() { 
+        if (usuarios.isEmpty()){
+            Usuario admin = new Usuario(23120211, "Chuchin3000", "Erik", "Ramirez", "Contrasenia");
+            usuarios.add(admin);
+            try{
+                ManejadorArchivos.agregarObjeto("usuarios.txt", admin);
+            }catch(ClassNotFoundException ex){
+                JOptionPane.showMessageDialog(this, "No se ha podido agregar el usuario");
+            }
+        }
+    }
+    private void cargarUsuarios() { 
+        try { 
+            ArrayList<Object> usuariosCargados = ManejadorArchivos.leerArchivo("usuarios.txt");
+            for (Object obj : usuariosCargados) { 
+                if (obj instanceof Usuario) { 
+                    usuarios.add((Usuario) obj);
+                } 
+            }
+        } catch (ClassNotFoundException ex){ 
+            JOptionPane.showMessageDialog(this, "Error al cargar los usuarios",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } 
+    }
+    
+    private boolean verificarCredenciales(String apodo, String contraseña){ 
+        for (Usuario usuario : usuarios){ 
+            if (usuario.getApodo().equals(apodo) && usuario.getContraseña().equals(contraseña)) {  
+                    return true; 
+            }
+        }
+        return false;  
     }
 
     /**
@@ -33,11 +69,12 @@ public class FrmLogin extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtUsuario = new javax.swing.JTextField();
-        txtContrasena = new javax.swing.JTextField();
         btnAceptar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
+        pwdContrasena = new javax.swing.JPasswordField();
+        chkMostrarContrasena = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,6 +96,11 @@ public class FrmLogin extends javax.swing.JFrame {
         });
 
         btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(0, 204, 0));
 
@@ -71,7 +113,7 @@ public class FrmLogin extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(127, Short.MAX_VALUE)
+                .addContainerGap(128, Short.MAX_VALUE)
                 .addComponent(jLabel3)
                 .addGap(122, 122, 122))
         );
@@ -83,10 +125,19 @@ public class FrmLogin extends javax.swing.JFrame {
                 .addContainerGap(28, Short.MAX_VALUE))
         );
 
+        chkMostrarContrasena.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        chkMostrarContrasena.setText("Mostrar Contraseña");
+        chkMostrarContrasena.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkMostrarContrasenaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -97,32 +148,37 @@ public class FrmLogin extends javax.swing.JFrame {
                                 .addGap(34, 34, 34))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnAceptar)
-                                    .addComponent(jLabel2))
-                                .addGap(12, 12, 12)))
+                                .addComponent(jLabel2)
+                                .addGap(25, 25, 25)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtUsuario)
-                            .addComponent(txtContrasena, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)))
+                            .addComponent(txtUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                            .addComponent(pwdContrasena)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(45, 45, 45)
+                        .addContainerGap()
+                        .addComponent(btnAceptar)
+                        .addGap(51, 51, 51)
                         .addComponent(btnCancelar)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(63, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(chkMostrarContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(txtContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(57, 57, 57)
+                    .addComponent(pwdContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chkMostrarContrasena)
+                .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAceptar)
                     .addComponent(btnCancelar))
@@ -133,24 +189,41 @@ public class FrmLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-        String usuario = txtUsuario.getText(); 
-        String contraseña = txtContrasena.getText();
-        
-        // Validaciones para asegurar que todos los campos estén llenos
-        if (txtUsuario.getText().isEmpty() || txtContrasena.getText().isEmpty() ) {
-            JOptionPane.showMessageDialog(this, "Todos los campos deben estar llenos",
-                    "Gestión de productos", JOptionPane.ERROR_MESSAGE);
-            return;
+        verificarUsuarioInicial();
+        if(txtUsuario.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Por favor Ingrese un usuario");
         }
-        
+        else if(pwdContrasena.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Por favor Ingrese una contraseña");
+        }
+        else{ 
+           if  (verificarCredenciales(txtUsuario.getText(), pwdContrasena.getText())){
+               this.dispose();
+               FrmAdmin frmAdmin = new FrmAdmin(); 
+               frmAdmin.setVisible(true);
+            }else{
+                JOptionPane.showMessageDialog(null,"El usuario o la contraseña son incorrectos"
+                ,"ERROR",JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
-        // Mostrar el form de la lista
-        //formLista.setVisible(true);
-        // Cerrar el form actual
-        this.dispose();
+        // TODO add your handling code here:
     }//GEN-LAST:event_txtUsuarioActionPerformed
+
+    private void chkMostrarContrasenaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkMostrarContrasenaActionPerformed
+        if(chkMostrarContrasena.isSelected()){
+            pwdContrasena.setEchoChar((char)0);
+        }
+        else{
+            pwdContrasena.setEchoChar('*');
+        }
+    }//GEN-LAST:event_chkMostrarContrasenaActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -178,6 +251,13 @@ public class FrmLogin extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(FrmLogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -190,11 +270,12 @@ public class FrmLogin extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;
+    private javax.swing.JCheckBox chkMostrarContrasena;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField txtContrasena;
+    private javax.swing.JPasswordField pwdContrasena;
     private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 }
